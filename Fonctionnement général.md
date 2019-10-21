@@ -13,3 +13,9 @@ Si un coiffeur est disponible à l'arrivée du client, il le prend en charge. Si
 La file d'attente a une capacité max d'occupation. Une fois pleine, les nouveaux clients ne peuvent plus attendre pour se faire coiffer.
 
 A chaque client prit en charge, on écrit dans un fichier texte la descritpion du client, le coiffeur le prenant en charge, et le temps de prise en charge, pour avoir un registre complet en fin de journée.
+
+
+
+coucou
+
+bite
