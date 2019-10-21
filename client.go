@@ -12,8 +12,3 @@ type client struct{
 	sexe string
 	shampoo boolean
 }
-
-func main() {
-	//new_client :=
-	//Print(coif)
-}

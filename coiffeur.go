@@ -13,8 +13,3 @@ type coiffeur struct{
 	statCoupeHomme float32
 	statCoupeFemme float32
 }
-
-func main() {
-	//new_coif :=
-	//Print(coif)
-}
