@@ -22,8 +22,8 @@ func main() {
 		for i:=0; i < len(lignes); i++ {
 			attributs = strings.Split(lignes[i], ":")
 			prenom:= attributs[0]
-			statH, err := strconv.ParseFloat(attributs[1], 32)
-			statF, err := strconv.ParseFloat(attributs[2], 32)
+			statH, err := strconv.ParseFloat(attributs[1], 64)
+			statF, err := strconv.ParseFloat(attributs[2], 64)
 			coiffeurs = append(coiffeurs, coiffeur{name : prenom, statCoupeHomme : statH, statCoupeFemme : statF})
 			
 			if err != nil {
