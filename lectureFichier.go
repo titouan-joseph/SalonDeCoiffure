@@ -15,6 +15,11 @@ type coiffeur struct {
 
 func main() {
 	donnees, erreur := ioutil.ReadFile("InputFile.txt")
+
+	if erreur != nil {
+		fmt.Println("Erreur lors de la lecture du fichier")
+	}
+
 	lignes := strings.Split(string(donnees), "\n")
 	var attributs []string
 	var coiffeurs []coiffeur
@@ -28,8 +33,4 @@ func main() {
 	}
 
 	fmt.Println(coiffeurs)
-
-	if erreur != nil {
-		fmt.Println("Erreur lors de la lecture du fichier")
-	}
 }
