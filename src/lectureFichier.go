@@ -8,7 +8,7 @@ import (
 	"./coiffeur"
 )
 
-func main() {
+func CreationCoiffeurs() []coiffeur.Coiffeur{
 	donnees, erreur := ioutil.ReadFile("InputFile.txt")
 
 	if erreur != nil {
@@ -17,15 +17,16 @@ func main() {
 
 	lignes := strings.Split(string(donnees), "\n")
 	var attributs []string
-	var coiffeurs []coiffeur.Coiffeur
+	var Coiffeurs []coiffeur.Coiffeur
 
 	for i := 0; i < len(lignes); i++ {
 		attributs = strings.Split(lignes[i], ":")
 		prenom := attributs[0]
 		statH, _ := strconv.ParseFloat(attributs[1],64)
 		statF, _ := strconv.ParseFloat(attributs[2], 64)
-		coiffeurs = append(coiffeurs, coiffeur.Coiffeur{Name: prenom, StatCoupeHomme: statH, StatCoupeFemme: statF})
+		Coiffeurs = append(Coiffeurs, coiffeur.Coiffeur{Name: prenom, StatCoupeHomme: statH, StatCoupeFemme: statF})
 	}
 
-	fmt.Println(coiffeurs)
+	return Coiffeurs
 }
+
