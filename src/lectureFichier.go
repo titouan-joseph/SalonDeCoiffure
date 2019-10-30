@@ -8,12 +8,6 @@ import (
 	"./coiffeur"
 )
 
-//type coiffeur struct {
-//	name           string
-//	statCoupeHomme float64
-//	statCoupeFemme float64
-//}
-
 func main() {
 	donnees, erreur := ioutil.ReadFile("InputFile.txt")
 
