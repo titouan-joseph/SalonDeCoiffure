@@ -1,7 +1,7 @@
 package client
 
 type Client struct{
-	name    string
+	Name    string
 	Sexe    string
-	shampoo bool
+	Shampoo bool
 }
