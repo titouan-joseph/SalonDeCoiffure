@@ -1,7 +1,20 @@
 package coiffeur
 
-type Coiffeur struct{
+import (
+	"client"
+)
+
+type Coiffeur struct {
 	Name           string
 	StatCoupeHomme float64
 	StatCoupeFemme float64
+}
+
+//fonction test temporaire, juste pour avoir la syntaxe
+func (coiff Coiffeur) ChangeSexe(personne *client.Client) {
+	if personne.Sexe == "homme" {
+		personne.Sexe = "femme"
+	} else if personne.Sexe == "femme" {
+		personne.Sexe = "homme"
+	}
 }
