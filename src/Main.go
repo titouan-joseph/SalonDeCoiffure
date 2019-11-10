@@ -28,9 +28,9 @@ func main() {
 	client1 := client.Client{Name: "Fabrice", Sexe: "homme", Shampoo: false}
 	fileAttente <- client1
 	elt := <-fileAttente
-	fmt.Println("File d'attente : ", elt)
+	fmt.Println("File d'attente :", elt)
 
 	//exemple de traitment d'un client par un coiffeur par une fonction test
 	coiffeurs[0].ChangeSexe(&client1)
-	fmt.Println("après l'opération : ", client1)
+	fmt.Println("après l'opération de", coiffeurs[0].Name, ":", client1)
 }

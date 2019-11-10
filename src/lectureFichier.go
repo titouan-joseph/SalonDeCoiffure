@@ -1,12 +1,11 @@
 package main
 
 import (
+	"coiffeur"
 	"fmt"
 	"io/ioutil"
 	"strconv"
 	"strings"
-
-	"./coiffeur"
 )
 
 func CreationCoiffeurs() []coiffeur.Coiffeur {
