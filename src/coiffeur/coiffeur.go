@@ -8,6 +8,7 @@ type Coiffeur struct {
 	Name           string
 	StatCoupeHomme float64
 	StatCoupeFemme float64
+	free bool
 }
 
 //fonction test temporaire, juste pour avoir la syntaxe
