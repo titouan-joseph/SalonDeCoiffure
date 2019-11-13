@@ -11,7 +11,7 @@ var temps_coupe_femme int //va valoir 10
 var temps_coupe_homme int //va valoir 6
 
 // ----- Fonction gérant l'arrivée d'un client dans le salon -----
-func client_arrival(sal salon.Salon) {
+func client_arrival(new_client client.Client, sal salon.Salon) {
 
 	//ajout du client à la file d'attente
 
@@ -57,16 +57,22 @@ func main() {
 	coiffeurs := CreationCoiffeurs()
 
 	// creation d'une liste de coiffeurs libres
+	var coiffeurs_libres []coiffeur.Coiffeur
+	coiffeurs_libres = coiffeurs
 
 	// démarrage timer
 
-	fmt.Println(coiffeurs)
+	fmt.Println("coiffeurs :", coiffeurs)
+	fmt.Println("coiffeurs libres :", coiffeurs_libres)
 	//création de la file d'attente de clients
 	fileAttente := make(chan client.Client, 10)
 	client1 := client.Client{Name: "Fabrice", Sexe: "homme", Shampoo: false}
 	fileAttente <- client1
 	elt := <-fileAttente
 	fmt.Println("File d'attente :", elt)
+
+	//test
+	EcritureClient(client1)
 
 	//exemple de traitment d'un client par un coiffeur par une fonction test
 	coiffeurs[0].ChangeSexe(&client1)
