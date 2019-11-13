@@ -72,7 +72,7 @@ func main() {
 	fmt.Println("File d'attente :", elt)
 
 	//test
-	EcritureClient(client1)
+	EcritureClient(client1, coiffeurs[0])
 
 	//exemple de traitment d'un client par un coiffeur par une fonction test
 	coiffeurs[0].ChangeSexe(&client1)
