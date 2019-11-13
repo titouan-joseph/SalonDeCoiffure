@@ -3,32 +3,24 @@ package main
 import (
 	"client"
 	"coiffeur"
-	"salon"
 	"fmt"
+	"salon"
 )
 
 var temps_coupe_femme int //va valoir 10
 var temps_coupe_homme int //va valoir 6
 
-
-
 // ----- Fonction gérant l'arrivée d'un client dans le salon -----
- func client_arrival(new_client client.Client, sal salon.Salon) {
+func client_arrival(sal salon.Salon) {
 
- 	//ajout du client à la file d'attente
+	//ajout du client à la file d'attente
 
- }
+}
 
+// ---- Fonction servant à calculer le temps que durera qui sera prit au coiffeur en fonction des parametres du client et du coiffeur
+func temps_process(new_client client.Client, new_haid coiffeur.Coiffeur) {
 
-
-
- // ---- Fonction servant à calculer le temps que durera qui sera prit au coiffeur en fonction des parametres du client et du coiffeur
- func temps_process( new_client client.Client, new_haid coiffeur.Coiffeur){
-
- }
-
-
-
+}
 
 // ------ Fonction servant à modéliser l'attente par la réalisation de la coupe -----
 func haird_busy(new_client client.Client, new_haird coiffeur.Coiffeur) {
@@ -41,45 +33,33 @@ func haird_busy(new_client client.Client, new_haird coiffeur.Coiffeur) {
 
 }
 
-
-
-
 // ----- Fonction servant en fin de coupe d'un client par le coiffeur -----
-func hair_end( custom client.Client, haird coiffeur.Coiffeur){
+func hair_end(custom client.Client, haird coiffeur.Coiffeur) {
 
 	// Ecriture dans le fichier texte du client et des caractéristiques
 	// coiffeur libre ( attribut)
 	// ajout du coiffeur dans la liste des coiffeurs libres
 }
 
-
-
-
 //  ----- Fonction servant à terminer la simunation -----
-func end_of_day ( sal salon.Salon){
+func end_of_day(sal salon.Salon) {
 
 	// arret du timer
 	// calcul du temps
 	// fermer ecriture du fichier et imprime le fichier
 }
 
-
-
-
-
-
-
 // ----- Fonction Main du projet -----
 
 func main() {
 
 	//création de la liste de coiffeurs d'après InputFile.txt
+	coiffeurs := CreationCoiffeurs()
 
 	// creation d'une liste de coiffeurs libres
 
 	// démarrage timer
 
-	coiffeurs := CreationCoiffeurs()
 	fmt.Println(coiffeurs)
 	//création de la file d'attente de clients
 	fileAttente := make(chan client.Client, 10)
