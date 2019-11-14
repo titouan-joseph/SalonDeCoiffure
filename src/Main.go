@@ -25,7 +25,7 @@ func client_arrival(new_client client.Client, sal salon.Salon) {
 }
 
 // ---- Fonction servant à calculer le temps que durera qui sera prit au coiffeur en fonction des parametres du client et du coiffeur
-func temps_process(new_client client.Client, new_haid coiffeur.Coiffeur) {
+func temps_process(new_client client.Client, new_haid coiffeur.Coiffeur) float64 {
 	workingTime := 0.0
 	if new_client.Sexe == "h"{
 		workingTime = new_haid.StatCoupeHomme * tempsCoupeHomme
@@ -36,6 +36,8 @@ func temps_process(new_client client.Client, new_haid coiffeur.Coiffeur) {
 	if new_client.Shampoo{
 		workingTime += rand.Float64() * tempsShampoo
 	}
+
+	return workingTime
 }
 
 // ------ Fonction servant à modéliser l'attente par la réalisation de la coupe -----
