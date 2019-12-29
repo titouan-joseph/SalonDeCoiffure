@@ -11,8 +11,8 @@ import (
 )
 
 
-var tempsCoupeFemme float64 = 10 //va valoir 10
-var tempsCoupeHomme float64 = 6  //va valoir 6
+var tempsCoupeFemme float64 = 10
+var tempsCoupeHomme float64 = 6
 var tempsShampoo float64 = 15
 
 
@@ -27,19 +27,20 @@ var startTimer = time.Now()
 
 
 // ----- Fonction gérant l'arrivée d'un client dans le salon -----
-func client_arrival(new_client client.Client, sal salon.Salon) {
+func client_arrival(new_client client.Client, sal salon.Salon, num_tot_client int) {
 
 	//ajout du client à la file d'attente
 	sal.Wg.Add(1)
+	num_tot_client += 1  // ajoute 1 au nombre de client arrivé dans la journée
 }
 
-// ---- Fonction servant à calculer le temps que durera qui sera prit au coiffeur en fonction des parametres du client et du coiffeur
-func temps_process(new_client client.Client, new_haid coiffeur.Coiffeur) float64 {
+// ---- Fonction servant à calculer le temps que durera la coupe qui sera prit au coiffeur en fonction des parametres du client et du coiffeur
+func temps_process(new_client client.Client, new_haird coiffeur.Coiffeur) float64 {
 	workingTime := 0.0
 	if new_client.Sexe == "h"{
-		workingTime = new_haid.StatCoupeHomme * tempsCoupeHomme
+		workingTime = new_haird.StatCoupeHomme * tempsCoupeHomme
 	}else {
-		workingTime = new_haid.StatCoupeFemme * tempsCoupeFemme
+		workingTime = new_haird.StatCoupeFemme * tempsCoupeFemme
 	}
 
 	if new_client.Shampoo{
@@ -111,6 +112,15 @@ func main() {
 	fmt.Println("coiffeurs libres :", coiffeursLibres)
 
 	fileAttente := make(chan client.Client, 10) //création de la file d'attente de clients
+
+	var num_tot_client int = 0 // nombre de client déjà arrivés aujourd'hui
+	var num_choisi int= 15  // nombre max de clients arrivant dans la journée
+
+	while ( num_tot_client< num_choisi);
+
+
+
+
 
 
 
