@@ -32,7 +32,7 @@ func client_arrival(nouveauClient client.Client, fileAttente chan client.Client)
 }
 
 // ---- Fonction qui calcule le temps du traitement du client en fonction des parametres du client et du coiffeur
-func temps_process(new_client client.Client, new_haid coiffeur.Coiffeur) float64 {
+func temps_process(new_client *client.Client, new_haid *coiffeur.Coiffeur) float32 {
 	workingTime := 0.0
 	if new_client.Sexe == "h" {
 		workingTime = new_haid.StatCoupeHomme * tempsCoupeHomme
@@ -41,9 +41,8 @@ func temps_process(new_client client.Client, new_haid coiffeur.Coiffeur) float64
 	}
 
 	if new_client.Shampoo {
-		workingTime += rand.Float64() * tempsShampoo
+		workingTime += rand.Float32() * tempsShampoo
 	}
-
 	return workingTime
 }
 
@@ -54,31 +53,19 @@ func remove(s []coiffeur.Coiffeur, i int) []coiffeur.Coiffeur {
 }
 
 // ------ Fonction servant à modéliser l'attente par la réalisation de la coupe -----
-func haird_busy(new_client client.Client, new_haird coiffeur.Coiffeur, fileAttente chan client.Client) {
+func haird_busy(new_client *client.Client, new_haird *coiffeur.Coiffeur, fileAttente chan client.Client) {
 
-	if len(coiffeursLibres) == 0 {
-		// On fait quoi si y a personne de dispo pour coiffeur ?
-	}
-	if len(coiffeursLibres) != 0 {
+	client_occupe = <-fileAttente // retire un client de la file d'attente
 
-		client_occupe = <-fileAttente // retire un client de la file d'attente
+	coiff_occupe = coiffeursLibres[0]
+	remove(coiffeursLibres, 0) // retire le premier coiffeur de la liste des coiffeurs libres
 
-		coiff_occupe = coiffeursLibres[0]
-		remove(coiffeursLibres, 0) // retire le premier coiffeur de la liste des coiffeurs libres
-
-		coiffeursOccupes = append(coiffeursOccupes, coiff_occupe) // ajout du coiffeur dans la liste des coiffeurs occupés
-		coiff_occupe.Libre = false
-
-		temps_process(new_client, new_haird)
-
-		var duration = float32(temps_process(new_client, new_haird))
-		//time.sleep sur le coiffeur ( uniquement sa goroutine avec time.After(time.Duration(duration))  )
-	}
-
+	coiffeursOccupes = append(coiffeursOccupes, coiff_occupe) // ajout du coiffeur dans la liste des coiffeurs occupés
+	coiff_occupe.Libre = false
 }
 
 // ----- Fonction servant en fin de coupe d'un client par le coiffeur -----
-func hair_end(clientRavi client.Client, coiffeurFini coiffeur.Coiffeur) {
+func hair_end(clientRavi *client.Client, coiffeurFini *coiffeur.Coiffeur) {
 
 	// Ecriture dans le fichier texte du client et des caractéristiques
 	EcritureClient(clientRavi, coiffeurFini)
@@ -97,16 +84,32 @@ func end_of_day(sal salon.Salon) {
 	// fermer ecriture du fichier et imprime le fichier
 }
 
+func operation(new_client *client.Client, new_haird *coiffeur.Coiffeur, fileAttente chan client.Client) {
+	duration := temps_process(&new_client, &new_haird, fileAttente)
+	//time.sleep avec time.After(time.Duration(duration))	
+	wg.Done()
+}
+
 // ----- Fonction Main du projet -----
 func main() {
 
+	fileAttente := make(chan client.Client, 10) //création de la file d'attente de clients
 	coiffeurs := CreationCoiffeurs() //création de la liste de coiffeurs d'après InputFile.txt
 	coiffeursLibres = coiffeurs
 
+	for int i := 0; i < nombreClients; i++ {
+		wg.Add(1) // il y aura maximum nombreClients go-routines  
+	}
+
+	for len(fileAttente != 0) && len(coiffeursLibres != 0) {
+		// détermination du client et du coiffeur
+		
+		haird_busy() // gère qui est dispo 
+		go operation()
+	}
+
 	fmt.Println("coiffeurs :", coiffeurs)
 	fmt.Println("coiffeurs libres :", coiffeursLibres)
-
-	fileAttente := make(chan client.Client, 10) //création de la file d'attente de clients
 
 	wg.Wait() //empêche le programme de terminer avant les go-routines
 }

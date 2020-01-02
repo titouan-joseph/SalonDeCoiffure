@@ -1,8 +1,8 @@
 package main
 
 import (
-	"./client"
-	"./coiffeur"
+	"client"
+	"coiffeur"
 	"database/sql/driver"
 	"fmt"
 	"./salon"
