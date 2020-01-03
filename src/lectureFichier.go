@@ -1,7 +1,7 @@
 package main
 
 import (
-	"coiffeur"
+	"./coiffeur"
 	"fmt"
 	"io/ioutil"
 	"strconv"

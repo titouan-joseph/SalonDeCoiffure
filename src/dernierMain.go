@@ -15,7 +15,7 @@ var wg sync.WaitGroup
 
 var tempsCoupeFemme float64 = 10 //va valoir 10
 var tempsCoupeHomme float64 = 6  //va valoir 6
-var tempsShampoo float64 = 15
+var tempsShampoo float64 = 150000
 
 var coiffeursLibres []coiffeur.Coiffeur
 var coiffeursOccupes []coiffeur.Coiffeur
@@ -24,6 +24,7 @@ var client_occupe client.Client
 var coiff_occupe coiffeur.Coiffeur
 
 var startTimer = time.Now()
+
 
 // ----- Fonction gérant l'arrivée d'un client dans le salon -----
 func client_arrival(nouveauClient client.Client, fileAttente chan client.Client) {
@@ -58,7 +59,7 @@ func remove(s []coiffeur.Coiffeur, i int) []coiffeur.Coiffeur {
 func haird_busy() coiffeur.Coiffeur {
 
 	coiff_occupe = coiffeursLibres[0]
-	remove(coiffeursLibres, 0)                                // retire le premier coiffeur de la liste des coiffeurs libres
+	coiffeursLibres= remove(coiffeursLibres, 0)                                // retire le premier coiffeur de la liste des coiffeurs libres
 	coiffeursOccupes = append(coiffeursOccupes, coiff_occupe) // ajout du coiffeur dans la liste des coiffeurs occupés
 	coiff_occupe.Libre = false
 	return coiff_occupe
@@ -74,7 +75,7 @@ func haird_not_busy(new_haird coiffeur.Coiffeur, new_client client.Client) {
 	coiffeursLibres = append(coiffeursLibres, new_haird)
 	for i := 0; i < len(coiffeursOccupes); i++ {
 		if coiffeursOccupes[i] == new_haird {
-			remove(coiffeursOccupes, i)
+			coiffeursOccupes= remove(coiffeursOccupes, i)
 		}
 		coiff_occupe.Libre = true
 	}
@@ -93,7 +94,8 @@ func end_of_day() float64 {
 
 func operation(new_client *client.Client, new_haird *coiffeur.Coiffeur, fileAttente chan client.Client) {
 	duration := temps_process(new_client, new_haird)
-	time.After(time.Duration(duration)) // effectue un équivalent de time.sleep sur la goroutine
+	fmt.Println(new_haird, "  prend en charge  ", new_client, " en temps: ", duration)
+	time.Sleep(10000000000) // effectue un équivalent de time.sleep sur la goroutine
 	wg.Done()
 
 }
@@ -102,9 +104,11 @@ func operation(new_client *client.Client, new_haird *coiffeur.Coiffeur, fileAtte
 func main() {
 
 
-	nombreClients := 9 // Simulation à n clients
+	nombreClients := 8 // Simulation à n clients
 	fileAttente := make(chan client.Client, nombreClients) //création de la file d'attente de clients
-	//coiffeurs := CreationCoiffeurs()           //création de la liste de coiffeurs d'après InputFile.txt
+	coiffeursZizi := CreationCoiffeurs()           //création de la liste de coiffeurs d'après InputFile.txt
+
+	fmt.Println(" Coiffeurs : ", coiffeursZizi)
 
 	fabrice := client.Client{Name: "Fabrice", Sexe: "homme", Shampoo: false}
 	fileAttente <- fabrice
@@ -112,25 +116,18 @@ func main() {
 	fileAttente <- sophie
 	thomas := client.Client{Name: "Thomas", Sexe: "homme", Shampoo: true}
 	fileAttente <- thomas
-	thomas1 := client.Client{Name: "Thomas", Sexe: "homme", Shampoo: true}
+	thomas1 := client.Client{Name: "Thomas1", Sexe: "homme", Shampoo: true}
 	fileAttente <- thomas1
-	thomas2 := client.Client{Name: "Thomas", Sexe: "homme", Shampoo: true}
+	thomas2 := client.Client{Name: "Thomas2", Sexe: "homme", Shampoo: true}
 	fileAttente <- thomas2
-	thomas3 := client.Client{Name: "Thomas", Sexe: "homme", Shampoo: true}
+	thomas3 := client.Client{Name: "Thomas3", Sexe: "homme", Shampoo: true}
 	fileAttente <- thomas3
-	thomas4 := client.Client{Name: "Thomas", Sexe: "homme", Shampoo: true}
+	thomas4 := client.Client{Name: "Thomas4", Sexe: "homme", Shampoo: true}
 	fileAttente <- thomas4
-	thomas5 := client.Client{Name: "Thomas", Sexe: "homme", Shampoo: true}
+	thomas5 := client.Client{Name: "Thomas5", Sexe: "homme", Shampoo: true}
 	fileAttente <- thomas5
-	thomas6 := client.Client{Name: "Thomas", Sexe: "homme", Shampoo: true}
-	fileAttente <- thomas6
-	
 
-	//elt := <-fileAttente
-	//fmt.Println("File d'attente :", elt)
-
-	josy := coiffeur.Coiffeur{Name: "Josy", StatCoupeHomme :0.6, StatCoupeFemme :0.4, Libre:false}
-	coiffeursLibres =append(coiffeursLibres, josy)
+	coiffeursLibres =coiffeursZizi
 
 
 	for i := 0; i < nombreClients; i++ {
@@ -147,6 +144,7 @@ func main() {
 
 	//fmt.Println("coiffeurs :", coiffeurs)
 	fmt.Println("coiffeurs libres :", coiffeursLibres)
+	fmt.Println("coiffeurs occupes :", coiffeursOccupes)
 
 	wg.Wait() //empêche le programme de terminer avant les go-routines
 
