@@ -1,7 +1,8 @@
 package coiffeur
 
 import (
-	"client"
+	
+	"./client"
 )
 
 type Coiffeur struct {

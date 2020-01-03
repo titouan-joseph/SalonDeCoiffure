@@ -8,7 +8,7 @@ import (
 
 	"./client"
 	"./coiffeur"
-	"./salon"
+	//"./salon"
 )
 
 var wg sync.WaitGroup
@@ -69,7 +69,7 @@ func haird_busy() coiffeur.Coiffeur {
 func haird_not_busy(new_haird coiffeur.Coiffeur, new_client client.Client) {
 
 	// Ecriture dans le fichier texte du client et des caractéristiques
-	EcritureClient(new_client, new_haird)
+	//EcritureClient(new_client, new_haird)
 
 	coiffeursLibres = append(coiffeursLibres, new_haird)
 	for i := 0; i < len(coiffeursOccupes); i++ {
@@ -83,11 +83,12 @@ func haird_not_busy(new_haird coiffeur.Coiffeur, new_client client.Client) {
 
 //  ----- Fonction servant à terminer la simulation -----
 
-func end_of_day(sal salon.Salon) {
+func end_of_day() float64 {
 
 	endTimer := time.Now()                      // arret du timer
 	timeOfExecution := endTimer.Sub(startTimer) // calcul du temps
 	// fermer ecriture du fichier et imprime le fichier
+	return float64(timeOfExecution)
 }
 
 func operation(new_client *client.Client, new_haird *coiffeur.Coiffeur, fileAttente chan client.Client) {
@@ -100,10 +101,37 @@ func operation(new_client *client.Client, new_haird *coiffeur.Coiffeur, fileAtte
 // ----- Fonction Main du projet -----
 func main() {
 
-	fileAttente := make(chan client.Client, 10) //création de la file d'attente de clients
-	coiffeurs := CreationCoiffeurs()            //création de la liste de coiffeurs d'après InputFile.txt
-	coiffeursLibres = coiffeurs
-	nombreClients := 10 // Simulation à 10 clients
+
+	nombreClients := 9 // Simulation à n clients
+	fileAttente := make(chan client.Client, nombreClients) //création de la file d'attente de clients
+	//coiffeurs := CreationCoiffeurs()           //création de la liste de coiffeurs d'après InputFile.txt
+
+	fabrice := client.Client{Name: "Fabrice", Sexe: "homme", Shampoo: false}
+	fileAttente <- fabrice
+	sophie := client.Client{Name: "Sophie", Sexe: "femme", Shampoo: true}
+	fileAttente <- sophie
+	thomas := client.Client{Name: "Thomas", Sexe: "homme", Shampoo: true}
+	fileAttente <- thomas
+	thomas1 := client.Client{Name: "Thomas", Sexe: "homme", Shampoo: true}
+	fileAttente <- thomas1
+	thomas2 := client.Client{Name: "Thomas", Sexe: "homme", Shampoo: true}
+	fileAttente <- thomas2
+	thomas3 := client.Client{Name: "Thomas", Sexe: "homme", Shampoo: true}
+	fileAttente <- thomas3
+	thomas4 := client.Client{Name: "Thomas", Sexe: "homme", Shampoo: true}
+	fileAttente <- thomas4
+	thomas5 := client.Client{Name: "Thomas", Sexe: "homme", Shampoo: true}
+	fileAttente <- thomas5
+	thomas6 := client.Client{Name: "Thomas", Sexe: "homme", Shampoo: true}
+	fileAttente <- thomas6
+	
+
+	//elt := <-fileAttente
+	//fmt.Println("File d'attente :", elt)
+
+	josy := coiffeur.Coiffeur{Name: "Josy", StatCoupeHomme :0.6, StatCoupeFemme :0.4, Libre:false}
+	coiffeursLibres =append(coiffeursLibres, josy)
+
 
 	for i := 0; i < nombreClients; i++ {
 		wg.Add(1) // il y aura maximum nombreClients go-routines. Les ajoute pour les préparer à être utilisées
@@ -111,24 +139,19 @@ func main() {
 
 	for len(fileAttente) != 0 && len(coiffeursLibres) != 0 { //equivalent du while qui tourne pendant toute l'execution du programme
 
-		client_occupe = <-fileAttente                        // retire un client de la file d'attente
-		newHaird := haird_busy()                             // choisit quel coiffeur s'en occupe
-		go operation(&client_occupe, &newHaird, fileAttente) //   ----  ajouter les arguments
-		haird_not_busy(newHaird, client_occupe)              // equivalent de haird_busy mais en fin de traitement ( gère qui est de nouveau dispo)
+		clientOccupe := <-fileAttente                       // retire un client de la file d'attente
+		newHaird := haird_busy()                            // choisit quel coiffeur s'en occupe
+		go operation(&clientOccupe, &newHaird, fileAttente) //   ----  ajouter les arguments
+		haird_not_busy(newHaird, clientOccupe)              // equivalent de haird_busy mais en fin de traitement ( gère qui est de nouveau dispo)
 	}
 
-	fmt.Println("coiffeurs :", coiffeurs)
+	//fmt.Println("coiffeurs :", coiffeurs)
 	fmt.Println("coiffeurs libres :", coiffeursLibres)
 
 	wg.Wait() //empêche le programme de terminer avant les go-routines
-}
 
-//TEST
-//client1 := client.Client{Name: "Fabrice", Sexe: "homme", Shampoo: false}
-//fileAttente <- client1
-//elt := <-fileAttente
-//fmt.Println("File d'attente :", elt)
-//EcritureClient(client1, coiffeurs[0])
-//coiffeurs[0].ChangeSexe(&client1)
-//fmt.Println("après l'opération de", coiffeurs[0].Name, ":", client1)
-//}
+	duration :=end_of_day()
+	fmt.Println( " The duration of today's process for the", nombreClients, "clients was ", duration)
+	}
+
+
