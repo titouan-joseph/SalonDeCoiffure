@@ -8,14 +8,13 @@ import (
 
 	"./client"
 	"./coiffeur"
-	//"./salon"
 )
 
 var wg sync.WaitGroup
 
 var tempsCoupeFemme float64 = 10 //va valoir 10
 var tempsCoupeHomme float64 = 6  //va valoir 6
-var tempsShampoo float64 = 150000
+var tempsShampoo float64 = 15
 
 var coiffeursLibres []coiffeur.Coiffeur
 var coiffeursOccupes []coiffeur.Coiffeur
@@ -67,35 +66,36 @@ func haird_busy() coiffeur.Coiffeur {
 
 // ------ Fonction servant à placer le coiffeur dans les bonnes listes après la réalisation de la coupe -----
 
-func haird_not_busy(new_haird coiffeur.Coiffeur, new_client client.Client) {
+func haird_not_busy(new_haird coiffeur.Coiffeur) {
 
 	// Ecriture dans le fichier texte du client et des caractéristiques
 	//EcritureClient(new_client, new_haird)
 
-	coiffeursLibres = append(coiffeursLibres, new_haird)
 	for i := 0; i < len(coiffeursOccupes); i++ {
 		if coiffeursOccupes[i] == new_haird {
+			new_haird.Libre = true
+			coiffeursLibres = append(coiffeursLibres, new_haird)
 			coiffeursOccupes= remove(coiffeursOccupes, i)
+
 		}
-		coiff_occupe.Libre = true
 	}
 
 }
 
 //  ----- Fonction servant à terminer la simulation -----
 
-func end_of_day() float64 {
+func end_of_day() time.Duration {
 
 	endTimer := time.Now()                      // arret du timer
 	timeOfExecution := endTimer.Sub(startTimer) // calcul du temps
 	// fermer ecriture du fichier et imprime le fichier
-	return float64(timeOfExecution)
+	return timeOfExecution
 }
 
-func operation(new_client *client.Client, new_haird *coiffeur.Coiffeur, fileAttente chan client.Client) {
-	duration := temps_process(new_client, new_haird)
+func operation(new_client *client.Client, new_haird *coiffeur.Coiffeur) {
+	duration := time.Duration(temps_process(new_client, new_haird))
 	fmt.Println(new_haird, "  prend en charge  ", new_client, " en temps: ", duration)
-	time.Sleep(10000000000) // effectue un équivalent de time.sleep sur la goroutine
+	time.Sleep(duration*time.Second) // effectue un équivalent de time.sleep sur la goroutine
 	wg.Done()
 
 }
@@ -103,10 +103,9 @@ func operation(new_client *client.Client, new_haird *coiffeur.Coiffeur, fileAtte
 // ----- Fonction Main du projet -----
 func main() {
 
-
 	nombreClients := 8 // Simulation à n clients
 	fileAttente := make(chan client.Client, nombreClients) //création de la file d'attente de clients
-	coiffeursZizi := CreationCoiffeurs()           //création de la liste de coiffeurs d'après InputFile.txt
+	coiffeursZizi := CreationCoiffeurs()          //création de la liste de coiffeurs d'après InputFile.txt
 
 	fmt.Println(" Coiffeurs : ", coiffeursZizi)
 
@@ -138,8 +137,8 @@ func main() {
 
 		clientOccupe := <-fileAttente                       // retire un client de la file d'attente
 		newHaird := haird_busy()                            // choisit quel coiffeur s'en occupe
-		go operation(&clientOccupe, &newHaird, fileAttente) //   ----  ajouter les arguments
-		haird_not_busy(newHaird, clientOccupe)              // equivalent de haird_busy mais en fin de traitement ( gère qui est de nouveau dispo)
+		go operation(&clientOccupe, &newHaird) 				//   ----  ajouter les arguments
+		haird_not_busy(newHaird)
 	}
 
 	//fmt.Println("coiffeurs :", coiffeurs)
