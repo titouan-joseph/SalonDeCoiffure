@@ -1,0 +1,8 @@
+FABRICE:homme:false
+RAZMIG:homme:true
+CHANTAL:femme:true
+PFR:homme:true
+KID:homme:false
+SFR:homme:false
+RAZVAN:homme:false
+FLM:homme:false

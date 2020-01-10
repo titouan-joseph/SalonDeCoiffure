@@ -3,11 +3,14 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"os"
 	"sync"
 	"time"
+	//"io"
 
 	"./client"
 	"./coiffeur"
+
 )
 
 var wg sync.WaitGroup
@@ -92,8 +95,41 @@ func end_of_day() time.Duration {
 	return timeOfExecution
 }
 
+func deleteFile( path string) {
+	// delete file
+	var err = os.Remove(path)
+	if err != nil {
+		{
+			// handle error
+			fmt.Printf("Could not create listener\n")
+			panic(err)
+		}
+	}
+	fmt.Println("File Deleted")
+
+}
+
+func createFile(path string) {
+	// check if file exists
+	var _, err = os.Stat(path)
+
+	// create file if not exists
+	if os.IsNotExist(err) {
+		var file, err = os.Create(path)
+		if err != nil {
+			// handle error
+			fmt.Printf("Could not create listener\n")
+			panic(err)
+		}
+		defer file.Close()
+	}
+
+	fmt.Println("File Created Successfully", path)
+}
+
 func operation(new_client *client.Client, new_haird *coiffeur.Coiffeur) {
 	duration := time.Duration(temps_process(new_client, new_haird))
+	EcritureClient(new_client, new_haird)
 	fmt.Println(new_haird, "  prend en charge  ", new_client, " en temps: ", duration)
 	time.Sleep(duration*time.Second) // effectue un équivalent de time.sleep sur la goroutine
 	wg.Done()
@@ -103,28 +139,36 @@ func operation(new_client *client.Client, new_haird *coiffeur.Coiffeur) {
 // ----- Fonction Main du projet -----
 func main() {
 
+	if _, err := os.Stat("OutputFile.txt"); err == nil {
+		// path/to/whatever exists
+		deleteFile("OutputFile.txt")
+
+	} else if os.IsNotExist(err) {
+		// path/to/whatever does *not* exist
+		fmt.Print(" No file names as OutputFile.txt for the moment")
+
+	} else {
+		// Schrodinger: file may or may not exist. See err for details.
+		// Therefore, do *NOT* use !os.IsNotExist(err) to test for file existence
+	}
+
+	createFile("OutputFile.txt")
+
+
+
 	nombreClients := 8 // Simulation à n clients
 	fileAttente := make(chan client.Client, nombreClients) //création de la file d'attente de clients
+	fmt.Println("Creation file d'attente ")
 	coiffeursZizi := CreationCoiffeurs()          //création de la liste de coiffeurs d'après InputFile.txt
+	fmt.Println("Creation liste coiffeurs ")
+	listeClients := CreationClients()
+	fmt.Println("Creation liste clients ")
 
+	for i:=0; i < nombreClients; i++ {
+		fmt.Println("passage")
+		fileAttente <-listeClients[i]
+	}
 	fmt.Println(" Coiffeurs : ", coiffeursZizi)
-
-	fabrice := client.Client{Name: "Fabrice", Sexe: "homme", Shampoo: false}
-	fileAttente <- fabrice
-	sophie := client.Client{Name: "Sophie", Sexe: "femme", Shampoo: true}
-	fileAttente <- sophie
-	thomas := client.Client{Name: "Thomas", Sexe: "homme", Shampoo: true}
-	fileAttente <- thomas
-	thomas1 := client.Client{Name: "Thomas1", Sexe: "homme", Shampoo: true}
-	fileAttente <- thomas1
-	thomas2 := client.Client{Name: "Thomas2", Sexe: "homme", Shampoo: true}
-	fileAttente <- thomas2
-	thomas3 := client.Client{Name: "Thomas3", Sexe: "homme", Shampoo: true}
-	fileAttente <- thomas3
-	thomas4 := client.Client{Name: "Thomas4", Sexe: "homme", Shampoo: true}
-	fileAttente <- thomas4
-	thomas5 := client.Client{Name: "Thomas5", Sexe: "homme", Shampoo: true}
-	fileAttente <- thomas5
 
 	coiffeursLibres =coiffeursZizi
 

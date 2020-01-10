@@ -2,6 +2,7 @@ package main
 
 import (
 	"./coiffeur"
+	"./client"
 	"fmt"
 	"io/ioutil"
 	"strconv"
@@ -9,7 +10,7 @@ import (
 )
 
 func CreationCoiffeurs() []coiffeur.Coiffeur {
-	donnees, erreur := ioutil.ReadFile("InputFile.txt")
+	donnees, erreur := ioutil.ReadFile("InputFileCoiffeurs.txt")
 
 	if erreur != nil {
 		fmt.Println("Erreur lors de la lecture du fichier")
@@ -28,4 +29,34 @@ func CreationCoiffeurs() []coiffeur.Coiffeur {
 	}
 
 	return Coiffeurs
+}
+
+func CreationClients() []client.Client {
+	donnees, erreur := ioutil.ReadFile("InputFileClients.txt")
+
+	if erreur != nil {
+		fmt.Println("Erreur lors de la lecture du fichier")
+	}
+
+	lignes := strings.Split(string(donnees), "\n")
+	var attributs []string
+	var Clients []client.Client
+
+	for i := 0; i < len(lignes); i++ {
+		attributs = strings.Split(lignes[i], ":")
+		prenom := attributs[0]
+		sexe := attributs[1]
+		shampStr:= attributs[2]
+		var shampBool bool
+		if shampStr == "true" {
+			shampBool = true
+		} else {
+			shampBool = false
+		}
+
+
+		Clients = append(Clients, client.Client{Name: prenom, Sexe: sexe, Shampoo: shampBool})
+	}
+
+	return Clients
 }
