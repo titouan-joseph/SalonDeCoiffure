@@ -2,13 +2,12 @@ package main
 
 import (
 	"bytes"
-	"coiffeur/client"
+	"client"
 	"encoding/gob"
 	"fmt"
 	"net"
 	"os"
 	"strconv"
-	"time"
 )
 
 // client.go
@@ -45,7 +44,7 @@ func main(){
 
 		for _, clt := range clientList {
 			fmt.Print(clt)
-			time.Sleep(1 * time.Second)
+			//time.Sleep(1 * time.Second)
 
 			var bin_buf bytes.Buffer
 			gobobj := gob.NewEncoder(&bin_buf)

@@ -1,13 +1,13 @@
 package main
 
 import (
+	"./client"
 	"./coiffeur"
-	client2 "coiffeur/client"
 	"log"
 	"os"
 )
 
-func EcritureClient(personne *client2.Client, prestataire *coiffeur.Coiffeur) {
+func EcritureClient(personne *client.Client, prestataire *coiffeur.Coiffeur) {
 	fichier, err := os.OpenFile("OutputFile.txt", os.O_WRONLY|os.O_APPEND, 0644)
 
 	//constitution du message

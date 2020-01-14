@@ -1,7 +1,7 @@
 package coiffeur
 
 import (
-	client2 "coiffeur/client"
+	"../client"
 )
 
 type Coiffeur struct {
@@ -12,7 +12,7 @@ type Coiffeur struct {
 }
 
 //fonction test temporaire, juste pour avoir la syntaxe
-func (coiff Coiffeur) ChangeSexe(personne *client2.Client) {
+func (coiff Coiffeur) ChangeSexe(personne *client.Client) {
 	if personne.Sexe == "homme" {
 		personne.Sexe = "femme"
 	} else if personne.Sexe == "femme" {

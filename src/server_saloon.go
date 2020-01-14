@@ -1,14 +1,15 @@
 package main
 
 import (
+	"./client"
+	"./coiffeur"
 	"bytes"
-	"coiffeur"
-	client2 "coiffeur/client"
 	"encoding/gob"
 	"fmt"
 	"net"
 	"os"
 	"strconv"
+	"time"
 )
 
 // server.go
@@ -38,34 +39,20 @@ func main() {
 		// Schrodinger: file may or may not exist. See err for details.
 		// Therefore, do *NOT* use !os.IsNotExist(err) to test for file existence
 	}
-
 	createFile("OutputFile.txt")
 
 	nombreClients := 8 // Simulation à n clients
 	nombreCoiffeurs := 4 // Simulation à 4 coiffeurs, attention prendre loe meme nombre que dans le fichier texte
 
-	fileAttente := make(chan client2.Client, nombreClients) //création de la file d'attente de clients
+	fileAttente := make(chan client.Client, nombreClients) //création de la file d'attente de clients
 	fileCoiffeursLibres := make(chan coiffeur.Coiffeur, nombreCoiffeurs)
 	fileCoiffeursOccupes := make(chan coiffeur.Coiffeur, nombreCoiffeurs)
 
-	fmt.Println("Creation file d'attente ")
 	coiffeursLibres := CreationCoiffeurs()          //création de la liste de coiffeurs d'après InputFile.txt
 	fmt.Println("Creation liste coiffeurs ")
-	listeClients := CreationClients()
-	fmt.Println("Creation liste clients ")
-
-	for i:=0; i < nombreClients; i++ {
-		fileAttente <-listeClients[i]
-		wg.Add(1)
-	}
-	fmt.Println(" Coiffeurs : ", coiffeursLibres)
-	fmt.Println(" Clients : ", len(fileAttente))
-
 	for i:=0; i < nombreCoiffeurs; i++ {
 		fileCoiffeursLibres <- coiffeursLibres[i]
 	}
-
-	go salon(fileAttente, fileCoiffeursLibres, fileCoiffeursOccupes)
 
 	for {
 		conn, err := server.Accept()
@@ -76,28 +63,13 @@ func main() {
 		}
 
 		go connTraitement(conn, fileAttente)
+		time.Sleep(1*time.Second)
+		go salon(fileAttente, fileCoiffeursLibres, fileCoiffeursOccupes, nombreClients)
+
 	}
 }
 
-func salon(fileAttente chan client2.Client, fileCoiffeursLibres chan coiffeur.Coiffeur,fileCoiffeursOccupes chan coiffeur.Coiffeur ){
-
-	for len(fileAttente)!= 0  { //equivalent du while qui tourne pendant toute l'execution du programme
-
-		clientOccupe := <-fileAttente                       // retire un client de la file d'attente
-		newHaird := haird_busy(fileCoiffeursLibres, fileCoiffeursOccupes)                            // choisit quel coiffeur s'en occupe
-		go operation(&clientOccupe, &newHaird, fileCoiffeursLibres, fileCoiffeursOccupes)
-
-	}
-
-	fmt.Println("coiffeurs occupes :", len(coiffeursOccupes))
-
-	wg.Wait() //empêche le programme de terminer avant les go-routines
-	duration :=end_of_day()
-	fmt.Println( " The duration of today's process for the", nombreClients, "clients was ", duration)
-}
-
-
-func connTraitement(connection net.Conn, file chan client2.Client){
+func connTraitement(connection net.Conn, file chan client.Client){
 
 	defer connection.Close()
 
@@ -112,9 +84,11 @@ func connTraitement(connection net.Conn, file chan client2.Client){
 			break
 		}
 		tmpbuff := bytes.NewBuffer(tmp)
-		tmpstruct := new(client2.Client)
+		tmpstruct := new(client.Client)
 		gobobj := gob.NewDecoder(tmpbuff)
 		gobobj.Decode(tmpstruct)
+
+		//fmt.Println(tmpstruct)
 
 		file <- *tmpstruct
 		wg.Add(1)
@@ -123,9 +97,30 @@ func connTraitement(connection net.Conn, file chan client2.Client){
 
 		var bin_buf bytes.Buffer
 		gobStr := gob.NewEncoder(&bin_buf)
-		msg := string("-> ok, client pris en charge")
+		msg := "-> ok, client pris en charge"
 		gobStr.Encode(msg)
 
 		connection.Write(bin_buf.Bytes())
 	}
+}
+
+func salon(fileAttente chan client.Client, fileCoiffeursLibres chan coiffeur.Coiffeur, fileCoiffeursOccupes chan coiffeur.Coiffeur, nombreClients int){
+
+	for len(fileAttente)!= 0 { //equivalent du while qui tourne pendant toute l'execution du programme
+
+		clientOccupe := <-fileAttente                                     // retire un client de la file d'attente
+		newHaird := haird_busy(fileCoiffeursLibres, fileCoiffeursOccupes) // choisit quel coiffeur s'en occupe
+		go operation(&clientOccupe, &newHaird, fileCoiffeursLibres, fileCoiffeursOccupes)
+
+	}
+
+	//fmt.Println("coiffeurs :", coiffeurs)
+	fmt.Println("nombre coiffeurs libres :", len(fileCoiffeursLibres))
+
+	wg.Wait() //empêche le programme de terminer avant les go-routines
+
+	duration :=end_of_day()
+	end_msg := "The duration of today's process for the " + strconv.Itoa(nombreClients) + " clients was "+  duration.String()
+	fmt.Printf( "\033[1;34m%s\033[0m", end_msg)
+
 }

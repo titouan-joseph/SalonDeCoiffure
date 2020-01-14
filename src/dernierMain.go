@@ -1,7 +1,7 @@
 package main
 
 import (
-	client2 "coiffeur/client"
+	"./client"
 	"fmt"
 	"math/rand"
 	"os"
@@ -21,20 +21,20 @@ var tempsShampoo float64 = 15
 var coiffeursLibres []coiffeur.Coiffeur
 var coiffeursOccupes []coiffeur.Coiffeur
 
-var client_occupe client2.Client
+var client_occupe client.Client
 var coiff_occupe coiffeur.Coiffeur
 
 var startTimer = time.Now()
 
 
 // ----- Fonction gérant l'arrivée d'un client dans le salon -----
-func client_arrival(nouveauClient client2.Client, fileAttente chan client2.Client) {
+func client_arrival(nouveauClient client.Client, fileAttente chan client.Client) {
 	//ajout du client à la file d'attente
 	fileAttente <- nouveauClient
 }
 
 // ---- Fonction qui calcule le temps du traitement du client en fonction des parametres du client et du coiffeur
-func temps_process(new_client *client2.Client, new_haid *coiffeur.Coiffeur) float32 {
+func temps_process(new_client *client.Client, new_haid *coiffeur.Coiffeur) float32 {
 	workingTime := 0.0
 	if new_client.Sexe == "homme" {
 		workingTime = new_haid.StatCoupeHomme * tempsCoupeHomme
@@ -127,14 +127,14 @@ func createFile(path string) {
 	fmt.Println("File Created Successfully", path)
 }
 
-func operation(new_client *client2.Client, new_haird *coiffeur.Coiffeur, coiffeursLibres chan coiffeur.Coiffeur, coiffeursOccupes chan coiffeur.Coiffeur) { // gérer file
+func operation(new_client *client.Client, new_haird *coiffeur.Coiffeur, coiffeursLibres chan coiffeur.Coiffeur, coiffeursOccupes chan coiffeur.Coiffeur) { // gérer file
 	duration := time.Duration(temps_process(new_client, new_haird))
 	EcritureClient(new_client, new_haird)
 	fmt.Println(new_haird, "  prend en charge  ", new_client, " en temps: ", duration)
 	time.Sleep(duration*time.Second) // effectue un équivalent de time.sleep sur la goroutine
 	wg.Done()
 	haird_not_busy(*new_haird, coiffeursLibres, coiffeursOccupes)
-	fmt.Println((" Fin de prise en charge"))
+	fmt.Println(new_haird, "  a fini avec  ", new_client)
 
 }
 
@@ -161,7 +161,7 @@ func test() {
 	nombreClients := 8 // Simulation à n clients
 	nombreCoiffeurs := 4 // Simulation à 4 coiffeurs, attention prendre loe meme nombre que dans le fichier texte
 
-	fileAttente := make(chan client2.Client, nombreClients) //création de la file d'attente de clients
+	fileAttente := make(chan client.Client, nombreClients) //création de la file d'attente de clients
 	fileCoiffeursLibres := make(chan coiffeur.Coiffeur, nombreCoiffeurs)
 	fileCoiffeursOccupes := make(chan coiffeur.Coiffeur, nombreCoiffeurs)
 
