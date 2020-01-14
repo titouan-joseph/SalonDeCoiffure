@@ -37,7 +37,7 @@ func client_arrival(nouveauClient client.Client, fileAttente chan client.Client)
 // ---- Fonction qui calcule le temps du traitement du client en fonction des parametres du client et du coiffeur
 func temps_process(new_client *client.Client, new_haid *coiffeur.Coiffeur) float32 {
 	workingTime := 0.0
-	if new_client.Sexe == "h" {
+	if new_client.Sexe == "homme" {
 		workingTime = new_haid.StatCoupeHomme * tempsCoupeHomme
 	} else {
 		workingTime = new_haid.StatCoupeFemme * tempsCoupeFemme
@@ -50,7 +50,7 @@ func temps_process(new_client *client.Client, new_haid *coiffeur.Coiffeur) float
 }
 
 //----- Fonction qui retire un élément d'une liste ---
-func remove(s []coiffeur.Coiffeur, i int) []coiffeur.Coiffeur {
+func remove(s []coiffeur.Coiffeur, i int) []coiffeur.Coiffeur {   // Besoin?
 	s[i] = s[len(s)-1]
 	return s[:len(s)-1]
 }
@@ -58,28 +58,29 @@ func remove(s []coiffeur.Coiffeur, i int) []coiffeur.Coiffeur {
 // ------ Fonction servant à placer le coiffeur dans les bonnes listes pour  la réalisation de la coupe
 //		   sélectionne celui qui s'occupe du client -----
 
-func haird_busy() coiffeur.Coiffeur {
+func haird_busy( coiffeursLibres chan coiffeur.Coiffeur, coiffeursOccupes chan coiffeur.Coiffeur ) coiffeur.Coiffeur {
 
-	coiff_occupe = coiffeursLibres[0]
-	coiffeursLibres= remove(coiffeursLibres, 0)                                // retire le premier coiffeur de la liste des coiffeurs libres
-	coiffeursOccupes = append(coiffeursOccupes, coiff_occupe) // ajout du coiffeur dans la liste des coiffeurs occupés
+	coiff_occupe := <- coiffeursLibres
+	coiffeursOccupes <- coiff_occupe  // ajout du coiffeur dans la liste des coiffeurs occupés
 	coiff_occupe.Libre = false
 	return coiff_occupe
 }
 
 // ------ Fonction servant à placer le coiffeur dans les bonnes listes après la réalisation de la coupe -----
 
-func haird_not_busy(new_haird coiffeur.Coiffeur) {
+func haird_not_busy(new_haird coiffeur.Coiffeur, coiffeursLibres chan coiffeur.Coiffeur, coiffeursOccupes chan coiffeur.Coiffeur) {
 
 	// Ecriture dans le fichier texte du client et des caractéristiques
 	//EcritureClient(new_client, new_haird)
 
-	for i := 0; i < len(coiffeursOccupes); i++ {
-		if coiffeursOccupes[i] == new_haird {
-			new_haird.Libre = true
-			coiffeursLibres = append(coiffeursLibres, new_haird)
-			coiffeursOccupes= remove(coiffeursOccupes, i)
+	for i := 0; i < len(coiffeursOccupes) ; i++ {
 
+		coiff_retire_channel := <- coiffeursOccupes
+		if coiff_retire_channel == new_haird {
+			new_haird.Libre = true
+			coiffeursLibres <- new_haird
+		} else {
+			coiffeursOccupes <- coiff_retire_channel
 		}
 	}
 
@@ -127,12 +128,14 @@ func createFile(path string) {
 	fmt.Println("File Created Successfully", path)
 }
 
-func operation(new_client *client.Client, new_haird *coiffeur.Coiffeur) {
+func operation(new_client *client.Client, new_haird *coiffeur.Coiffeur, coiffeursLibres chan coiffeur.Coiffeur, coiffeursOccupes chan coiffeur.Coiffeur) { // gérer file
 	duration := time.Duration(temps_process(new_client, new_haird))
 	EcritureClient(new_client, new_haird)
 	fmt.Println(new_haird, "  prend en charge  ", new_client, " en temps: ", duration)
 	time.Sleep(duration*time.Second) // effectue un équivalent de time.sleep sur la goroutine
 	wg.Done()
+	haird_not_busy(*new_haird, coiffeursLibres, coiffeursOccupes)
+	fmt.Println((" Fin de prise en charge"))
 
 }
 
@@ -157,37 +160,40 @@ func main() {
 
 
 	nombreClients := 8 // Simulation à n clients
+	nombreCoiffeurs := 4 // Simulation à 4 coiffeurs, attention prendre loe meme nombre que dans le fichier texte
+
 	fileAttente := make(chan client.Client, nombreClients) //création de la file d'attente de clients
+	fileCoiffeursLibres := make(chan coiffeur.Coiffeur, nombreCoiffeurs)
+	fileCoiffeursOccupes := make(chan coiffeur.Coiffeur, nombreCoiffeurs)
+
 	fmt.Println("Creation file d'attente ")
-	coiffeursZizi := CreationCoiffeurs()          //création de la liste de coiffeurs d'après InputFile.txt
+	coiffeursLibres := CreationCoiffeurs()          //création de la liste de coiffeurs d'après InputFile.txt
 	fmt.Println("Creation liste coiffeurs ")
 	listeClients := CreationClients()
 	fmt.Println("Creation liste clients ")
 
 	for i:=0; i < nombreClients; i++ {
-		fmt.Println("passage")
 		fileAttente <-listeClients[i]
+		wg.Add(1)
 	}
-	fmt.Println(" Coiffeurs : ", coiffeursZizi)
+	fmt.Println(" Coiffeurs : ", coiffeursLibres)
+	fmt.Println(" Clients : ", len(fileAttente))
 
-	coiffeursLibres =coiffeursZizi
-
-
-	for i := 0; i < nombreClients; i++ {
-		wg.Add(1) // il y aura maximum nombreClients go-routines. Les ajoute pour les préparer à être utilisées
+	for i:=0; i < nombreCoiffeurs; i++ {
+		fileCoiffeursLibres <- coiffeursLibres[i]
 	}
 
-	for len(fileAttente) != 0 && len(coiffeursLibres) != 0 { //equivalent du while qui tourne pendant toute l'execution du programme
+
+	for len(fileAttente)!= 0  { //equivalent du while qui tourne pendant toute l'execution du programme
 
 		clientOccupe := <-fileAttente                       // retire un client de la file d'attente
-		newHaird := haird_busy()                            // choisit quel coiffeur s'en occupe
-		go operation(&clientOccupe, &newHaird) 				//   ----  ajouter les arguments
-		haird_not_busy(newHaird)
+		newHaird := haird_busy(fileCoiffeursLibres, fileCoiffeursOccupes)                            // choisit quel coiffeur s'en occupe
+		go operation(&clientOccupe, &newHaird, fileCoiffeursLibres, fileCoiffeursOccupes)
+
 	}
 
 	//fmt.Println("coiffeurs :", coiffeurs)
-	fmt.Println("coiffeurs libres :", coiffeursLibres)
-	fmt.Println("coiffeurs occupes :", coiffeursOccupes)
+	fmt.Println("nombre coiffeurs libres :", len(fileCoiffeursLibres))
 
 	wg.Wait() //empêche le programme de terminer avant les go-routines
 
