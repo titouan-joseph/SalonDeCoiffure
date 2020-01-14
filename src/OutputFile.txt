@@ -1,0 +1,8 @@
+Sophie pris(e) en charge par SOPHIE avec shampooing
+Thomas1 pris(e) en charge par ROBERT avec shampooing
+Fabrice pris(e) en charge par PIERRE sans shampooing
+Thomas pris(e) en charge par NICOLAS avec shampooing
+Thomas2 pris(e) en charge par PIERRE avec shampooing
+Thomas3 pris(e) en charge par NICOLAS avec shampooing
+Thomas4 pris(e) en charge par ROBERT avec shampooing
+Thomas5 pris(e) en charge par SOPHIE avec shampooing
