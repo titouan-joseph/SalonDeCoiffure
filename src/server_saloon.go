@@ -1,9 +1,9 @@
 package main
 
 import (
+	"./client"
+	"./coiffeur"
 	"bytes"
-	"coiffeur"
-	client2 "coiffeur/client"
 	"encoding/gob"
 	"fmt"
 	"net"
@@ -44,28 +44,17 @@ func main() {
 	nombreClients := 8 // Simulation à n clients
 	nombreCoiffeurs := 4 // Simulation à 4 coiffeurs, attention prendre loe meme nombre que dans le fichier texte
 
-	fileAttente := make(chan client2.Client, nombreClients) //création de la file d'attente de clients
+	fileAttente := make(chan client.Client, nombreClients) //création de la file d'attente de clients
 	fileCoiffeursLibres := make(chan coiffeur.Coiffeur, nombreCoiffeurs)
 	fileCoiffeursOccupes := make(chan coiffeur.Coiffeur, nombreCoiffeurs)
 
 	fmt.Println("Creation file d'attente ")
 	coiffeursLibres := CreationCoiffeurs()          //création de la liste de coiffeurs d'après InputFile.txt
 	fmt.Println("Creation liste coiffeurs ")
-	listeClients := CreationClients()
-	fmt.Println("Creation liste clients ")
 
-	for i:=0; i < nombreClients; i++ {
-		fileAttente <-listeClients[i]
-		wg.Add(1)
-	}
 	fmt.Println(" Coiffeurs : ", coiffeursLibres)
 	fmt.Println(" Clients : ", len(fileAttente))
 
-	for i:=0; i < nombreCoiffeurs; i++ {
-		fileCoiffeursLibres <- coiffeursLibres[i]
-	}
-
-	go salon(fileAttente, fileCoiffeursLibres, fileCoiffeursOccupes)
 
 	for {
 		conn, err := server.Accept()
@@ -76,10 +65,12 @@ func main() {
 		}
 
 		go connTraitement(conn, fileAttente)
+		go salon(fileAttente, fileCoiffeursLibres, fileCoiffeursOccupes, nombreClients)
 	}
+
 }
 
-func salon(fileAttente chan client2.Client, fileCoiffeursLibres chan coiffeur.Coiffeur,fileCoiffeursOccupes chan coiffeur.Coiffeur ){
+func salon(fileAttente chan client.Client, fileCoiffeursLibres chan coiffeur.Coiffeur,fileCoiffeursOccupes chan coiffeur.Coiffeur, nombreClients int ){
 
 	for len(fileAttente)!= 0  { //equivalent du while qui tourne pendant toute l'execution du programme
 
@@ -97,7 +88,9 @@ func salon(fileAttente chan client2.Client, fileCoiffeursLibres chan coiffeur.Co
 }
 
 
-func connTraitement(connection net.Conn, file chan client2.Client){
+func connTraitement(connection net.Conn, file chan client.Client){
+
+	fmt.Println("debut du traitement")
 
 	defer connection.Close()
 
@@ -112,7 +105,7 @@ func connTraitement(connection net.Conn, file chan client2.Client){
 			break
 		}
 		tmpbuff := bytes.NewBuffer(tmp)
-		tmpstruct := new(client2.Client)
+		tmpstruct := new(client.Client)
 		gobobj := gob.NewDecoder(tmpbuff)
 		gobobj.Decode(tmpstruct)
 

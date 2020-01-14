@@ -1,8 +1,8 @@
 package main
 
 import (
+	"./client"
 	"bytes"
-	"coiffeur/client"
 	"encoding/gob"
 	"fmt"
 	"net"
