@@ -2,7 +2,7 @@ package main
 
 import (
 	"./coiffeur"
-	"./client"
+	client2 "coiffeur/client"
 	"fmt"
 	"io/ioutil"
 	"strconv"
@@ -31,7 +31,7 @@ func CreationCoiffeurs() []coiffeur.Coiffeur {
 	return Coiffeurs
 }
 
-func CreationClients() []client.Client {
+func CreationClients() []client2.Client {
 	donnees, erreur := ioutil.ReadFile("InputFileClients.txt")
 
 	if erreur != nil {
@@ -40,7 +40,7 @@ func CreationClients() []client.Client {
 
 	lignes := strings.Split(string(donnees), "\n")
 	var attributs []string
-	var Clients []client.Client
+	var Clients []client2.Client
 
 	for i := 0; i < len(lignes); i++ {
 		attributs = strings.Split(lignes[i], ":")
@@ -55,7 +55,7 @@ func CreationClients() []client.Client {
 		}
 
 
-		Clients = append(Clients, client.Client{Name: prenom, Sexe: sexe, Shampoo: shampBool})
+		Clients = append(Clients, client2.Client{Name: prenom, Sexe: sexe, Shampoo: shampBool})
 	}
 
 	return Clients
