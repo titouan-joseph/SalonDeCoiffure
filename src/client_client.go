@@ -1,8 +1,8 @@
 package main
 
 import (
+	"./client"
 	"bytes"
-	"client"
 	"encoding/gob"
 	"fmt"
 	"net"
