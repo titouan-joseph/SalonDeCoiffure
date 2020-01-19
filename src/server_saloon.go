@@ -65,7 +65,6 @@ func main() {
 		go connTraitement(conn, fileAttente)
 		time.Sleep(1*time.Second)
 		go salon(fileAttente, fileCoiffeursLibres, fileCoiffeursOccupes, nombreClients)
-
 	}
 }
 
@@ -92,8 +91,7 @@ func connTraitement(connection net.Conn, file chan client.Client){
 
 		file <- *tmpstruct
 		wg.Add(1)
-		//fmt.Println(file)
-
+		//fmt.Println(len(file))
 
 		var bin_buf bytes.Buffer
 		gobStr := gob.NewEncoder(&bin_buf)
@@ -106,7 +104,7 @@ func connTraitement(connection net.Conn, file chan client.Client){
 
 func salon(fileAttente chan client.Client, fileCoiffeursLibres chan coiffeur.Coiffeur, fileCoiffeursOccupes chan coiffeur.Coiffeur, nombreClients int){
 
-	for len(fileAttente)!= 0 { //equivalent du while qui tourne pendant toute l'execution du programme
+	for { //equivalent du while qui tourne pendant toute l'execution du programme
 
 		clientOccupe := <-fileAttente                                     // retire un client de la file d'attente
 		newHaird := haird_busy(fileCoiffeursLibres, fileCoiffeursOccupes) // choisit quel coiffeur s'en occupe

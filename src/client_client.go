@@ -37,7 +37,7 @@ func main(){
 		thomas4 := client.Client{Name: "Thomas4", Sexe: "homme", Shampoo: true}
 		thomas5 := client.Client{Name: "Thomas5", Sexe: "homme", Shampoo: true}
 
-		clientList := []client.Client{fabrice, sophie, thomas, thomas1, thomas2, thomas3, thomas4, thomas5}
+		clientList := []client.Client{fabrice, sophie, thomas, thomas1, thomas2, thomas3, thomas4, thomas5, sophie, thomas, thomas1, thomas2, thomas3, thomas4, sophie, thomas, thomas1, thomas2, thomas3, thomas4	}
 
 		// encode buffer and marshal it into a gob object
 		tmp := make([]byte, 128)
