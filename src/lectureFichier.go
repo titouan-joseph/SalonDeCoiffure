@@ -38,9 +38,11 @@ func CreationClients() []client.Client {
 		fmt.Println("Erreur lors de la lecture du fichier")
 	}
 
+
 	lignes := strings.Split(string(donnees), "\n")
 	var attributs []string
 	var Clients []client.Client
+
 
 	for i := 0; i < len(lignes); i++ {
 		attributs = strings.Split(lignes[i], ":")

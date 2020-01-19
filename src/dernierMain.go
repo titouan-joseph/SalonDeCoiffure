@@ -146,6 +146,7 @@ func test() {
 
 	nombreClients := 8 
 	nombreCoiffeurs := 4 // Simulation à 4 coiffeurs, attention prendre le meme nombre que dans le fichier texte
+	PresentationJolie()
 
 	fileAttente := make(chan client.Client, nombreClients) //création de la file d'attente de clients
 	fileCoiffeursLibres := make(chan coiffeur.Coiffeur, nombreCoiffeurs)
@@ -181,6 +182,7 @@ func test() {
 
 	duration :=end_of_day()
 	fmt.Println( " The duration of today's process for the", nombreClients, "clients was ", duration)
-	}
+	FinJolie()
+}
 
 

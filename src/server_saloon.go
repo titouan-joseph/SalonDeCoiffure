@@ -27,22 +27,23 @@ func main() {
 		panic(err)
 	}
 
-	if _, err := os.Stat("OutputFile.txt"); err == nil {
+	if _, err := os.Stat("OutputFile.md"); err == nil {
 		// path/to/whatever exists
-		deleteFile("OutputFile.txt")
+		deleteFile("OutputFile.md")
 
 	} else if os.IsNotExist(err) {
 		// path/to/whatever does *not* exist
-		fmt.Print(" No file names as OutputFile.txt for the moment")
+		fmt.Print(" No file names as OutputFile.md for the moment")
 
 	} else {
 		// Schrodinger: file may or may not exist. See err for details.
 		// Therefore, do *NOT* use !os.IsNotExist(err) to test for file existence
 	}
-	createFile("OutputFile.txt")
+	createFile("OutputFile.md")
 
 	nombreClients := 8 // Simulation à n clients
 	nombreCoiffeurs := 4 // Simulation à 4 coiffeurs, attention prendre loe meme nombre que dans le fichier texte
+	PresentationJolie()
 
 	fileAttente := make(chan client.Client, nombreClients) //création de la file d'attente de clients
 	fileCoiffeursLibres := make(chan coiffeur.Coiffeur, nombreCoiffeurs)
@@ -66,6 +67,8 @@ func main() {
 		time.Sleep(1*time.Second)
 		go salon(fileAttente, fileCoiffeursLibres, fileCoiffeursOccupes, nombreClients)
 	}
+
+	FinJolie()
 }
 
 func connTraitement(connection net.Conn, file chan client.Client){
@@ -104,7 +107,7 @@ func connTraitement(connection net.Conn, file chan client.Client){
 
 func salon(fileAttente chan client.Client, fileCoiffeursLibres chan coiffeur.Coiffeur, fileCoiffeursOccupes chan coiffeur.Coiffeur, nombreClients int){
 
-	for { //equivalent du while qui tourne pendant toute l'execution du programme
+	for len(fileAttente)!= 0 { //equivalent du while qui tourne pendant toute l'execution du programme
 
 		clientOccupe := <-fileAttente                                     // retire un client de la file d'attente
 		newHaird := haird_busy(fileCoiffeursLibres, fileCoiffeursOccupes) // choisit quel coiffeur s'en occupe

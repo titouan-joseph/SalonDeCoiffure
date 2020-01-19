@@ -1,7 +1,6 @@
 package main
 
 import (
-	"./client"
 	"bytes"
 	"encoding/gob"
 	"fmt"
@@ -28,16 +27,18 @@ func main(){
 
 		defer conn.Close()
 
-		fabrice := client.Client{Name: "Fabrice", Sexe: "homme", Shampoo: false}
-		sophie := client.Client{Name: "Sophie", Sexe: "femme", Shampoo: true}
-		thomas := client.Client{Name: "Thomas", Sexe: "homme", Shampoo: true}
-		thomas1 := client.Client{Name: "Thomas1", Sexe: "homme", Shampoo: true}
-		thomas2 := client.Client{Name: "Thomas2", Sexe: "homme", Shampoo: true}
-		thomas3 := client.Client{Name: "Thomas3", Sexe: "homme", Shampoo: true}
-		thomas4 := client.Client{Name: "Thomas4", Sexe: "homme", Shampoo: true}
-		thomas5 := client.Client{Name: "Thomas5", Sexe: "homme", Shampoo: true}
+		//fabrice := client.Client{Name: "Fabrice", Sexe: "homme", Shampoo: false}
+		//sophie := client.Client{Name: "Sophie", Sexe: "femme", Shampoo: true}
+		//thomas := client.Client{Name: "Thomas", Sexe: "homme", Shampoo: true}
+		//thomas1 := client.Client{Name: "Thomas1", Sexe: "homme", Shampoo: true}
+		//thomas2 := client.Client{Name: "Thomas2", Sexe: "homme", Shampoo: true}
+		//thomas3 := client.Client{Name: "Thomas3", Sexe: "homme", Shampoo: true}
+		//thomas4 := client.Client{Name: "Thomas4", Sexe: "homme", Shampoo: true}
+		//thomas5 := client.Client{Name: "Thomas5", Sexe: "homme", Shampoo: true}
+		//
+		//clientList := []client.Client{fabrice, sophie, thomas, thomas1, thomas2, thomas3, thomas4, thomas5, sophie, thomas, thomas1, thomas2, thomas3, thomas4, sophie, thomas, thomas1, thomas2, thomas3, thomas4	}
 
-		clientList := []client.Client{fabrice, sophie, thomas, thomas1, thomas2, thomas3, thomas4, thomas5, sophie, thomas, thomas1, thomas2, thomas3, thomas4, sophie, thomas, thomas1, thomas2, thomas3, thomas4	}
+		clientList := CreationClients()
 
 		// encode buffer and marshal it into a gob object
 		tmp := make([]byte, 128)
