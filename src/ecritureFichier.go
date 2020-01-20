@@ -13,7 +13,7 @@ func PresentationJolie() {
 	fichier, err := os.OpenFile("OutputFile.md", os.O_WRONLY|os.O_APPEND, 0644)
 	//constitution du message
 	var message string
-	message = "# SALON DE COIFFURE \n \n"
+	message = "# SALON DE COIFFURE PF'HAIR \n \n"
 	message += "## COMPTE-RENDU DE LA JOURNEE \n"
 
 	len, err := fichier.WriteString(message + "\n")
